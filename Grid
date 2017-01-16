@@ -1,0 +1,145 @@
+desc:3D grid mapping for ATK transforms
+
+in_pin:none
+out_pin:none
+
+slider1:0<-50,50,0.1>X
+slider2:0<-50,50,0.1>Y
+slider3:0<-50,50,0.1>Z
+
+slider4:0<-180,180>-Azimuth (-180 to 180)
+slider5:0<0,360>-Azimuth (0 to 360)
+slider6:0<-90,90>-Elevation
+slider7:0<0,90>-Distance
+
+@init
+
+azimuth = 0;
+azimuthWig = 0;
+elevation = 0;
+distance = 0;
+posX = 250;
+posY = 250;
+PosZ = 250;
+prevMC = mouse_cap;
+prevMX = mouse_x;
+prevMY = mouse_y;
+grabXY = 0;
+grabZ = 0;
+
+@slider
+
+x = slider1;
+y = slider2;
+z = slider3;
+
+@gfx 550 500
+
+gfx_r = .25;
+gfx_g = .25;
+gfx_b = .25;
+gfx_x = 0;
+gfx_y = 0;
+loop(11,
+  gfx_lineto(gfx_x,500);
+  gfx_y = 0;
+  gfx_x += 50;);i = 0;
+loop(11,
+  gfx_lineto(500,gfx_y);
+  gfx_x = 0;
+  gfx_y += 50;);
+gfx_x = 0;
+gfx_y = 0;
+loop(11,
+  gfx_lineto(510,gfx_y);
+  gfx_x = 540;
+  gfx_y += 50;);
+gfx_r = .5;
+gfx_g = .5;
+gfx_b = .5;
+gfx_circle(250,250,10,1);
+gfx_circle(525,250,10,1);
+gfx_r = .75;
+gfx_g = .75;
+gfx_b = .75;
+gfx_x = 250;
+gfx_y = 0;
+gfx_lineto(250,500);
+gfx_x = 0;
+gfx_y = 250;
+gfx_lineto(500,250);
+gfx_x = 510;
+gfx_y = 250;
+gfx_lineto(540,250);
+
+posX = x * 5 + 250;
+posY = y * -5 + 250;
+posZ = z * -5 + 250;
+gfx_r = 1;
+gfx_g = 1;
+gfx_b = 1;
+gfx_circle(posX,posY,10,1);
+gfx_circle(525,posZ,10,1);
+
+((mouse_cap == 1)&&(prevMC == 1))&&
+  ((mouse_x > posX - 5)&&(mouse_x < posX + 5))&&
+  ((mouse_y > posY - 5)&&(mouse_y < posY + 5))||
+  ((mouse_cap == 1)&&(grabXY == 1)) ? (
+    grabXY = 1;
+    posX += mouse_x - prevMX;
+    posY += mouse_y - prevMY;
+    x = posX / 5 - 50;
+    y = (posY - 250) / -5;
+    slider1 = x;
+    slider2 = y;
+    sliderchange(slider1);
+    sliderchange(slider2);
+) : (grabXY = 0;);
+((mouse_cap == 1)&&(prevMC == 1))&&
+  ((mouse_x > 520)&&(mouse_x < 530))&&
+  ((mouse_y > posZ - 5)&&(mouse_y < posZ + 5))||
+    ((mouse_cap == 1)&&(grabZ == 1)) ? (
+    grabZ = 1;
+    posZ += mouse_y - prevMY;
+    z = (posZ - 250) / -5;
+    slider3 = z;
+    sliderchange(slider3);
+) : (grabZ = 0;);
+prevMC = mouse_cap;
+prevMX = mouse_x;
+prevMY = mouse_y;
+
+@block
+
+
+(x !== 0)&&(y !== 0) ? (
+  azimuth = atan(abs(x) / y) * 180 / $pi;) : (
+  (x !== 0) ? (
+    azimuth = 90;) : (
+    (y < 0) ? (
+      azimuth = 180;) : (
+      azimuth = 0;);
+  );
+);
+(y < 0) ? (
+  azimuth += 180;);
+(x < 0) ? (
+  azimuth *= -1;);
+
+hypotenuse = sqrt(sqr(x) + sqr(y));
+
+(hypotenuse !== 0)&&(z !== 0) ? (
+  elevation = atan(z / hypotenuse) * 180 / $pi;) : (
+  (z !== 0) ? (
+    elevation = 90;) : (
+      elevation = 0;);
+);
+distance = sqrt(sqr(hypotenuse) + sqr(z));
+
+(-azimuth >= 0) ? (azimuthWig = -azimuth;) : (azimuthWig = 360 - azimuth;);
+
+slider4 = azimuth;
+slider5 = azimuthWig;
+slider6 = elevation;
+slider7 = distance;
+

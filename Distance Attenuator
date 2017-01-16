@@ -1,0 +1,23 @@
+desc:Distance Attenuator (non-real)
+
+slider1:0<0,50,0.1>Distance
+slider2:1<0.001,1,0.001>Scale Distance
+slider3:1<0.001,1,0.001>Scale Attenuation
+
+@init
+
+@slider
+r=slider1 + 1;
+s=slider2;
+a=slider3*2;
+
+@block
+r*s < 1 ? d = 1 : d = r*s;
+g=1/d^a;
+
+
+@sample
+spl0=spl0 * g;
+spl1=spl1 * g;
+
+
