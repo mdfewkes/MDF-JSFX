@@ -1,0 +1,22 @@
+desc:MIDI Axis Flip
+
+slider1:60<0,127,0.5>Axis
+
+in_pin:none
+out_pin:none
+
+@init
+axis = slider1;
+
+@slider
+axis = slider1;
+
+@block
+    while (midirecv(offset,msg1,msg2,msg3)) ( // REAPER 4.59+ syntax while()
+       msg1==$x90 ? (
+          n = msg2 + ((axis - msg2) * 2);       
+          midisend(offset,msg1,n,msg3);
+       ) : (
+         midisend(offset,msg1,msg2,msg3); // passthrough other events
+       )
+    );
