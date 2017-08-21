@@ -13,10 +13,10 @@ axis = slider1;
 
 @block
     while (midirecv(offset,msg1,msg2,msg3)) ( // REAPER 4.59+ syntax while()
-       msg1==$x90 ? (
+       (msg1 & $xF0)==$x90 || (msg1 & $xF0)==$x80 ? (
           n = msg2 + ((axis - msg2) * 2);       
           midisend(offset,msg1,n,msg3);
        ) : (
-         midisend(offset,msg1,msg2,msg3); // passthrough other events
+          midisend(offset,msg1,msg2,msg3); // passthrough other events
        )
     );
