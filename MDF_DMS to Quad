@@ -1,4 +1,8 @@
 desc:DoubleMidSide to Quadraphonic
+author: Michael Fewkes
+version 1.0
+changelog: Initial release
+about: Decodes double mid side recodrings into quadraphonic surround recordings
 
 slider1:0<0,1,1{Front Side Rear,Front Rear Side}>Input Order
 slider4:0<-60,24,1>Front Mid Level (dB)

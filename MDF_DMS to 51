@@ -1,4 +1,8 @@
 desc:DoubleMidSide to 5.1
+author: Michael Fewkes
+version 1.0
+changelog: Initial release
+about: Decodes double mid side recodrings into 5.1 surround recordings
 
 slider1:0<0,1,1{Front Side Rear,Front Rear Side}>Input Order
 slider2:0<0,1,1{L R C Lfe Ls Rs,L C R Ls Rs Lfe}>Output Order
