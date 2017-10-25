@@ -2,7 +2,7 @@ desc:DoubleMidSide to FOA
 author: Michael Fewkes
 version: 1.0
 changelog: Initial release
-about: Decodes double mid sidefirst order ambisonic recodrings into first order ambisonic recordings
+about: Decodes double mid sidefirst order ambisonic recodrings into first order ambisonic recordings (no vertical)
 
 slider1:0<0,1,1{Front Side Rear,Front Rear Side}>Input Order
 slider2:0<0,1,1{FuMa,AmbiX}>Output Order
