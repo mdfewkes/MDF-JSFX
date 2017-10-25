@@ -22,7 +22,7 @@ chanX = front - rear;
 chanY = side;
 chanZ = 0;
 
-slider2 == 0 ? spl0 = chanW / 2 : spl0 = chanW;
+slider2 == 0 ? spl0 = chanW / sqrt(2) : spl0 = chanW;
 slider2 == 0 ? spl1 = chanX : spl1 = chanY;
 slider2 == 0 ? spl2 = chanY : spl2 = chanZ;
 slider2 == 0 ? spl2 = chanZ : spl3 = chanX;
