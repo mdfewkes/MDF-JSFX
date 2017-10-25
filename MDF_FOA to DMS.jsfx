@@ -13,7 +13,7 @@ slider2:0<0,1,1{Front Side Rear,Front Rear Side}>Output Order
 
 @sample
 
-slider1 == 0 ? chanW = spl0 * 2^(0.5) : chanW = spl0;
+slider1 == 0 ? chanW = spl0 * 1.4142135623730951 : chanW = spl0;
 slider1 == 0 ? chanX = spl1 : chanX = spl3;
 slider1 == 0 ? chanY = spl2 : chanY = spl1;
 slider1 == 0 ? chanZ = spl3 : chanZ = spl2;
