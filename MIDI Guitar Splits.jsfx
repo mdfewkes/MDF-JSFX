@@ -1,0 +1,70 @@
+desc:MIDI Guitar String and Fret Filter
+author: Michael Fewkes
+version: 1.0
+changelog: Initial release
+about: Filters down MIDI signals from MIDI guitar by fretboard zone to one channel
+
+slider1:1<1,6,1>High String
+slider2:6<1,6,1>Low String
+slider3:0<-1,24,1>Low Fret (-1 = inf)
+slider4:25<0,25,1>High Fret (25 = inf)
+slider5:0<0,126,1>Low Velocity
+slider6:127<1,127,1>High Velocity
+slider7:1<0,16,1>Output Channel (0 = no change)
+
+in_pin:none
+out_pin:none
+
+@init
+STR1ROOT = 64;
+STR2ROOT = 59;
+STR3ROOT = 55;
+STR4ROOT = 50;
+STR5ROOT = 45;
+STR6ROOT = 40;
+STRROOT[0] = STR1ROOT;
+STRROOT[1] = STR2ROOT;
+STRROOT[2] = STR3ROOT;
+STRROOT[3] = STR4ROOT;
+STRROOT[4] = STR5ROOT;
+STRROOT[5] = STR6ROOT;
+
+@slider
+highString = slider1 - 1;
+lowString = slider2 - 1;
+lowFret = slider3;
+highFret = slider4;
+lowVel = slider5;
+highVel = slider6;
+outputChannel = slider7 - 1;
+
+(lowString < highString) ? (
+	highString = slider2 - 1;
+	lowString = slider1 - 1;
+);
+(lowFret > highFret) ? (
+	lowFret = slider4;
+	highFret = slider3;
+);
+(lowVel > highVel) ? (
+	lowVel = slider6;
+	highVel = slider5;
+);
+
+@block
+while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
+	(outputChannel < 0) ? outputToChannel = (msg1 & $x0F) : outputToChannel = outputChannel;
+	(msg1 & $x0F) <= lowString && (msg1 & $x0F) >= highString ? ( //check if in string range
+		(msg1 & $xF0)==$x90 || (msg1 & $xF0)==$x80 ? ( //check if note on/off
+			msg3 >= lowVel && msg3 <= highVel ? ( //check if in velocity range
+				((highFret < 25) && (lowFret > -1)) ? (msg2 >= STRROOT[msg1 & $x0F] + lowFret) && (msg2 <= STRROOT[msg1 & $x0F] + highFret) ? midisend(offset, ((msg1 & $xF0) + outputToChannel), msg2, msg3); //if above min fret and bellow max fret, send note
+				(!(highFret < 25) && (lowFret > -1)) ? msg2 >= STRROOT[msg1 & $x0F] + lowFret ? midisend(offset, ((msg1 & $xF0) + outputToChannel), msg2, msg3); //if abouve min fret, send note
+				((highFret < 25) && !(lowFret > -1)) ? msg2 <= STRROOT[msg1 & $x0F] + highFret ? midisend(offset, ((msg1 & $xF0) + outputToChannel), msg2, msg3); //if bellow max fret, send note
+				(!(highFret < 25) && !(lowFret > -1)) ? midisend(offset, ((msg1 & $xF0) + outputToChannel), msg2, msg3); //send regardless of fret
+			)
+		) : (
+			midisend(offset, ((msg1 & $xF0) + outputToChannel), msg2, msg3); //if not note on/off, pass through
+		)
+	)
+);
+

@@ -1,0 +1,47 @@
+desc:MIDI Guitar Control
+author: Michael Fewkes
+version: 1.0
+changelog: Initial release
+about: Basic controls for 6 mono channel MIDI guitar
+
+slider1:0<-24,24,1>String 1 Transpose
+slider2:0<-24,24,1>String 2 Transpose
+slider3:0<-24,24,1>String 3 Transpose
+slider4:0<-24,24,1>String 4 Transpose
+slider5:0<-24,24,1>String 5 Transpose
+slider6:0<-24,24,1>String 6 Transpose
+
+in_pin:none
+out_pin:none
+
+@init
+string1trans = 0;
+string2trans = 0;
+string3trans = 0;
+string4trans = 0;
+string5trans = 0;
+string6trans = 0;
+
+@slider
+string1trans = slider1;
+string2trans = slider2;
+string3trans = slider3;
+string4trans = slider4;
+string5trans = slider5;
+string6trans = slider6;
+
+@block
+    while (midirecv(offset,msg1,msg2,msg3)) ( // REAPER 4.59+ syntax while()
+       (msg1 & $xF0)==$x90 || (msg1 & $xF0)==$x80 ? (
+          (msg1 & $x0F)==$x00 ? n = msg2 + string1trans;
+          (msg1 & $x0F)==$x01 ? n = msg2 + string2trans;
+          (msg1 & $x0F)==$x02 ? n = msg2 + string3trans;
+          (msg1 & $x0F)==$x03 ? n = msg2 + string4trans;
+          (msg1 & $x0F)==$x04 ? n = msg2 + string5trans;
+          (msg1 & $x0F)==$x05 ? n = msg2 + string6trans;
+
+		  midisend(offset,msg1,n,msg3);
+       ) : (
+          midisend(offset,msg1,msg2,msg3); // passthrough other events
+       )
+    );
