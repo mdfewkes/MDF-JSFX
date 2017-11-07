@@ -1,0 +1,38 @@
+desc:MIDI Guitar Pitch Bend Control
+author: Michael Fewkes
+version: 1.0
+changelog: Initial release
+about: Control options for pitch bend
+
+//slider1:8192<0,16383,1>In Pitch Bend
+//slider2:8192<0,16383,1>Out Pitch Bend
+slider3:12<1,24,1>PB Range In
+slider4:2<1,24,1>PB Range Out
+
+@init
+
+@slider
+PBi = slider3; 
+PBo = slider4;
+mult = PBi/PBo;
+
+@block
+while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
+	(msg1 & $xF0) == $xE0 ? (
+		LSBin = msg2;
+		MSBin = msg3;
+		PBin = LSBin + (MSBin * 128);
+		//slider1 = PBin;
+		//sliderchange(slider1);
+
+		PBout = (PBin - 8192) * mult + 8192;
+		PBout > 16383 ? PBout = 16383;
+		PBout < 0 ? PBout = 0;
+		LSBout = PBout & 127;
+		MSBout = PBout>>7;
+		//slider2 = PBout;
+		//sliderchange(slider2);
+
+		midisend(offset, msg1, LSBout, MSBout);
+	) : midisend(offset, msg1, msg2, msg3);
+);
