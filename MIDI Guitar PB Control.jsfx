@@ -2,31 +2,72 @@ desc:MIDI Guitar Pitch Bend Control
 author: Michael Fewkes
 version: 1.0
 changelog: Initial release
-about: Control options for pitch bend
+about: Control options for pitch bend designed for MIDI guitar
 
 //slider1:8192<0,16383,1>In Pitch Bend
 //slider2:8192<0,16383,1>Out Pitch Bend
 slider3:12<1,24,1>PB Range In
 slider4:2<1,24,1>PB Range Out
+slider5:0<0,3,1{pass thru,rounded,rounded with steps,stepped}>PB Style
+slider6:10<0,50,0.1>Threshdold in cents
 
 @init
+PBout = 8192;
+oldbend = 0;
+
 
 @slider
 PBi = slider3; 
 PBo = slider4;
-mult = PBi/PBo;
+style = slider5;
+thresh = slider6;
+
 
 @block
 while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
-	(msg1 & $xF0) == $xE0 ? (
+	(msg1 & $xF0) == $xE0 ? ( //converting PB to number
+
+		mult = PBi/PBo;
+		pbincents = 8192/PBo/100;
+		stepSize = 8192/PBo;
+		actThresh = pbincents * thresh;
+
 		LSBin = msg2;
 		MSBin = msg3;
 		PBin = LSBin + (MSBin * 128);
 		//slider1 = PBin;
 		//sliderchange(slider1);
 
-		PBout = (PBin - 8192) * mult + 8192;
-		PBout > 16383 ? PBout = 16383;
+		// style adjustments go here
+		PBmid = (PBin - 8192) * mult;
+		(style == 0) ? PBout = PBmid + 8192;
+		(style == 1) ? (
+			(PBmid < actThresh) && (PBmid > -actThresh) ? PBmid = 0;
+			PBout = PBmid + 8192;);
+		(style == 2) ? (
+			k = -PBo;
+			while(k <= PBo) (
+				(PBmid < actThresh + (stepSize * k)) && (PBmid > -actThresh + (stepSize * k)) ? PBmid = 0 + (stepSize * k);
+				PBout = PBmid + 8192;
+				k += 1;
+			);
+		);
+		(style == 3) ? (
+			k = -PBo; 
+			stepFound = 0;
+			while(k <= PBo) (
+				(PBmid < actThresh + (stepSize * k)) && (PBmid > -actThresh + (stepSize * k)) ? (
+					PBmid = 0 + (stepSize * k);
+					oldbend = PBmid;
+					stepFound = 1;
+				);
+				k += 1;
+			);
+			stepFound == 0 ? PBmid = oldbend;
+			PBout = PBmid + 8192;
+		);
+
+		PBout > 16383 ? PBout = 16383; //converting number back to PB
 		PBout < 0 ? PBout = 0;
 		LSBout = PBout & 127;
 		MSBout = PBout>>7;
@@ -34,5 +75,7 @@ while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
 		//sliderchange(slider2);
 
 		midisend(offset, msg1, LSBout, MSBout);
-	) : midisend(offset, msg1, msg2, msg3);
+	) : (
+		midisend(offset, msg1, msg2, msg3);
+	)
 );

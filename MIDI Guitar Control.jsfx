@@ -4,23 +4,35 @@ version: 1.0
 changelog: Initial release
 about: Basic controls for 6 mono channel MIDI guitar
 
-slider1:0<-24,24,1>Transposition String 1
-slider2:0<-24,24,1>String 2
-slider3:0<-24,24,1>String 3
-slider4:0<-24,24,1>String 4
-slider5:0<-24,24,1>String 5
-slider6:0<-24,24,1>String 6
-slider7:0<-1,1,0.1>Sensitivity String 1
-slider8:0<-1,1,0.1>String 2
-slider9:0<-1,1,0.1>String 3
-slider10:0<-1,1,0.1>String 4
-slider11:0<-1,1,0.1>String 5
-slider12:0<-1,1,0.1>String 6
+slider1:1<0,1,1{Off,On}>On/Off String 1
+slider2:1<0,1,1{Off,On}>String 2
+slider3:1<0,1,1{Off,On}>String 3
+slider4:1<0,1,1{Off,On}>String 4
+slider5:1<0,1,1{Off,On}>String 5
+slider6:1<0,1,1{Off,On}>String 6
+slider7:0<-24,24,1>Transposition String 1
+slider8:0<-24,24,1>String 2
+slider9:0<-24,24,1>String 3
+slider10:0<-24,24,1>String 4
+slider11:0<-24,24,1>String 5
+slider12:0<-24,24,1>String 6
+slider13:0<-1,1,0.1>Sensitivity String 1
+slider14:0<-1,1,0.1>String 2
+slider15:0<-1,1,0.1>String 3
+slider16:0<-1,1,0.1>String 4
+slider17:0<-1,1,0.1>String 5
+slider18:0<-1,1,0.1>String 6
 
 in_pin:none
 out_pin:none
 
 @init
+string1on = 1;
+string2on = 1;
+string3on = 1;
+string4on = 1;
+string5on = 1;
+string6on = 1;
 string1trans = 0;
 string2trans = 0;
 string3trans = 0;
@@ -35,33 +47,52 @@ string5sence = 0;
 string6sence = 0;
 
 @slider
-string1trans = slider1;
-string2trans = slider2;
-string3trans = slider3;
-string4trans = slider4;
-string5trans = slider5;
-string6trans = slider6;
-string1sence = slider7;
-string2sence = slider8;
-string3sence = slider9;
-string4sence = slider10;
-string5sence = slider11;
-string6sence = slider12;
+string1on = slider1;
+string2on = slider2;
+string3on = slider3;
+string4on = slider4;
+string5on = slider5;
+string6on = slider6;
+string1trans = slider7;
+string2trans = slider8;
+string3trans = slider9;
+string4trans = slider10;
+string5trans = slider11;
+string6trans = slider12;
+string1sence = slider13;
+string2sence = slider14;
+string3sence = slider15;
+string4sence = slider16;
+string5sence = slider17;
+string6sence = slider18;
 
 @block
 while (midirecv(offset,msg1,msg2,msg3)) ( // REAPER 4.59+ syntax while()
+  channel = msg1 & $x0F;
   (msg1 & $xF0)==$x90 || (msg1 & $xF0)==$x80 ? (
-    (msg1 & $x0F)==$x00 ? (n = msg2 + string1trans; v = floor(msg3 + (msg3 * string1sence)););
-    (msg1 & $x0F)==$x01 ? (n = msg2 + string2trans; v = floor(msg3 + (msg3 * string2sence)););
-    (msg1 & $x0F)==$x02 ? (n = msg2 + string3trans; v = floor(msg3 + (msg3 * string3sence)););
-    (msg1 & $x0F)==$x03 ? (n = msg2 + string4trans; v = floor(msg3 + (msg3 * string4sence)););
-    (msg1 & $x0F)==$x04 ? (n = msg2 + string5trans; v = floor(msg3 + (msg3 * string5sence)););
-    (msg1 & $x0F)==$x05 ? (n = msg2 + string6trans; v = floor(msg3 + (msg3 * string6sence)););
+
+    n = 0;
+    v = 0;
+    isOn = 0;
+
+    channel==0 && string1on ? (n = msg2 + string1trans; v = floor(msg3 + (msg3 * string1sence)); isOn = 1;);
+    channel==1 && string2on ? (n = msg2 + string2trans; v = floor(msg3 + (msg3 * string2sence)); isOn = 1;);
+    channel==2 && string3on ? (n = msg2 + string3trans; v = floor(msg3 + (msg3 * string3sence)); isOn = 1;);
+    channel==3 && string4on ? (n = msg2 + string4trans; v = floor(msg3 + (msg3 * string4sence)); isOn = 1;);
+    channel==4 && string5on ? (n = msg2 + string5trans; v = floor(msg3 + (msg3 * string5sence)); isOn = 1;);
+    channel==5 && string6on ? (n = msg2 + string6trans; v = floor(msg3 + (msg3 * string6sence)); isOn = 1;);
 
     v > 127 ? v = 127;
 
-    (v > 0 || (msg1 & $xF0)==$x80) ? midisend(offset,msg1,n,v);
+    (v > 0 || (msg1 & $xF0)==$x80) && isOn ? midisend(offset,msg1,n,v);
   ) : (
-    midisend(offset,msg1,msg2,msg3); // passthrough other events
+    channel == 0 && string1on ? midisend(offset,msg1,msg2,msg3);
+    channel == 1 && string2on ? midisend(offset,msg1,msg2,msg3);
+    channel == 2 && string3on ? midisend(offset,msg1,msg2,msg3);
+    channel == 3 && string4on ? midisend(offset,msg1,msg2,msg3);
+    channel == 4 && string5on ? midisend(offset,msg1,msg2,msg3);
+    channel == 5 && string6on ? midisend(offset,msg1,msg2,msg3);
+    channel >= 6 ? midisend(offset,msg1,msg2,msg3);
+     // passthrough other events
    )
 );

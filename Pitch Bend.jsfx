@@ -1,4 +1,4 @@
-desc:test
+desc:MIDI Pitchbend
 
 slider1:8192<0,16383,1>Pitch Bend
 slider2:1<1,16,1>Channel
