@@ -1,6 +1,6 @@
 desc:MIDI Guitar Pitch Bend Control
 author: Michael Fewkes
-version: 1.0
+version: 0.9
 changelog: Initial release
 about: Control options for pitch bend designed for MIDI guitar
 

@@ -1,6 +1,6 @@
 desc:MIDI Guitar String and Fret Filter
 author: Michael Fewkes
-version: 1.0
+version: 0.9
 changelog: Initial release
 about: Filters down MIDI signals from MIDI guitar by fretboard zone to one channel
 

@@ -1,6 +1,6 @@
 desc:MIDI Guitar Control
 author: Michael Fewkes
-version: 1.0
+version: 0.9
 changelog: Initial release
 about: Basic controls for 6 mono channel MIDI guitar
 
