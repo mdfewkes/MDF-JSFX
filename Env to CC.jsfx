@@ -7,7 +7,7 @@ about: Convert audio to CC
 slider1:10<1,100,1>Follower Responsiveness In Hz
 slider2:2<1,127,1>CC Number
 slider3:1<1,16,1>MIDI Channel
-slider4:1<0,10,0.01>Scale CC
+slider4:1<-10,10,0.01>Scale CC
 
 @init
 /////////////////////////////////////////////////////////////////
