@@ -9,6 +9,7 @@ out_pin:none
 
 
 @init
+ext_noinit = 1;
 stepsInOctave = 12;
 
 noteOffset = 12;
