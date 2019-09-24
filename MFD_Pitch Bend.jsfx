@@ -2,6 +2,8 @@ desc:MIDI Pitchbend
 
 slider1:8192<0,16383,1>Pitch Bend
 slider2:1<1,16,1>Channel
+slider3:8192<0,16383,1>Pitch Bend In Monitor
+slider4:1<1,16,1>Channel In Monitor
 
 @init
 oldPB = 8192;
@@ -14,6 +16,15 @@ channel = slider2 - 1;
 @block
 while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
 	midisend(offset, msg1, msg2, msg3);
+	(msg1 & $xF0) == $xE0 ? (
+		LSBin = msg2;
+		MSBin = msg3;
+		PBin = LSBin + (MSBin * 128);
+		slider3 = PBin;
+		sliderchange(slider3);
+		slider4 = (msg1 & $x0F) + 1;
+		sliderchange(slider4);
+	);
 );
 
 (pitchbend != oldPB) ? (

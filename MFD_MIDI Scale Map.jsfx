@@ -1,0 +1,167 @@
+desc:MIDI Scale Map
+author: Michael Fewkes
+version: 0.9
+changelog: Initial release
+about: Map Midi notes to scale on a grid
+
+in_pin:none
+out_pin:none
+
+
+@init
+stepsInOctave = 12;
+
+noteOffset = 12;
+i = 0;
+j = 0;
+while (i < stepsInOctave) (
+	noteOffset[i] = i;
+	i += 1;
+);
+
+function FindNewNote(currentNote) (
+	index = currentNote%stepsInOctave;
+	outputOffset = noteOffset[index] - index;
+	(outputOffset > stepsInOctave/2) ? (
+		outputOffset -= stepsInOctave;
+	) : (outputOffset < -stepsInOctave/2) ? (
+		outputOffset += stepsInOctave;
+	);
+	currentNote + outputOffset;
+);
+
+str = "";
+noteNameReferance = 0;
+noteNameReferance[0] = "C";
+noteNameReferance[1] = "#b";
+noteNameReferance[2] = "D";
+noteNameReferance[3] = "#b";
+noteNameReferance[4] = "E";
+noteNameReferance[5] = "F";
+noteNameReferance[6] = "#b";
+noteNameReferance[7] = "G";
+noteNameReferance[8] = "#b";
+noteNameReferance[9] = "A";
+noteNameReferance[10] = "#b";
+noteNameReferance[11] = "B";
+function NumberToName(noteNumber) (
+	noteNameReferance[noteNumber];
+);
+useNoteNames = stepsInOctave == 12;
+
+
+@block
+
+while (midirecv(offset,msg1,msg2,msg3)) ( // REAPER 4.59+ syntax while()
+	(msg1 & $xF0)==$x90 || (msg1 & $xF0)==$x80 ? (
+		n = FindNewNote(msg2);
+		midisend(offset,msg1,n,msg3);
+	) : (
+		midisend(offset,msg1,msg2,msg3); // passthrough other events
+	)
+);
+
+
+@gfx 600 600
+divSize_w = gfx_w / (stepsInOctave + 3);
+divSize_h = gfx_h / (stepsInOctave + 3);
+
+x = divSize_w; //draw map
+y = gfx_h - divSize_h;
+i = 0;
+j = 0;
+while (i < stepsInOctave) (
+	while (j < stepsInOctave) (
+		(j == noteOffset[i]) ? ( //for current offset
+			gfx_r = .75;
+			gfx_g = .5;
+			gfx_b = .5;
+		) : (i == j) ? (         //for no offset
+			gfx_r = .5;
+			gfx_g = .5;
+			gfx_b = .5;
+		) : (                   //for remaining
+			gfx_r = .75;
+			gfx_g = .75;
+			gfx_b = .75;
+		);
+		gfx_rect(x, y - divSize_h, divSize_w, divSize_h);
+		y -= divSize_h;
+		j += 1;
+	);
+	y = gfx_h - divSize_h;
+	j = 0;
+	x += divSize_w;
+	i += 1;
+);
+
+x = divSize_w; //draw lables
+y = divSize_h + (divSize_h - divSize_w) ;
+gfx_setfont(1, "Arial", divSize_w);
+gfx_r = 1;
+gfx_g = 1;
+gfx_b = 1;
+i = 0;
+while (i < stepsInOctave) ( //top
+	gfx_x = x;
+	gfx_y = y;     
+	(useNoteNames) ? (
+		gfx_drawstr(NumberToName(i));
+	) : (
+		gfx_printf("%{i}i")
+	);
+	
+	x += divSize_w;
+	i += 1;
+);
+x = gfx_w - divSize_w*2;
+y = gfx_h - divSize_h*2;
+gfx_setfont(1, "Arial", divSize_h);
+i = 0;
+while (i < stepsInOctave) ( //side
+	gfx_x = x;
+	gfx_y = y;
+	(useNoteNames) ? (
+		gfx_drawstr(NumberToName(i));
+	) : (
+		gfx_printf("%{i}i")
+	);
+	
+	y -= divSize_h;
+	i += 1;
+);
+
+col = -1;
+row = -1;
+click = -1;
+(mouse_cap == 1) ? (
+	((mouse_x > divSize_w) && (mouse_x < gfx_w - divSize_w*2)) ? (
+		col = floor((mouse_x - divSize_w)/divSize_w);
+		click += 1;
+	);
+	((mouse_y > divSize_h*2 ) && (mouse_y < gfx_h - divSize_h)) ? (
+		row = abs(ceil((mouse_y - divSize_h*2)/divSize_h) - stepsInOctave);
+		click += 1;
+	);
+);
+(click == 1) ? (
+	noteOffset[col] = row;
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
