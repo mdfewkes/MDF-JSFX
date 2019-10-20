@@ -1,12 +1,24 @@
 desc:MIDI Scale Map
 author: Michael Fewkes
-version: 0.9
+version: 0.9.1
 changelog: Initial release
 about: Map Midi notes to scale on a grid
 
 in_pin:none
 out_pin:none
 
+slider1:0<0,11,1>-C
+slider2:1<0,11,1>-#b
+slider3:2<0,11,1>-D
+slider4:3<0,11,1>-#b
+slider5:4<0,11,1>-E
+slider6:5<0,11,1>-F
+slider7:6<0,11,1>-#b
+slider8:7<0,11,1>-G
+slider9:8<0,11,1>-#b
+slider10:9<0,11,1>-A
+slider11:10<0,11,1>-#b
+slider12:11<0,11,1>-B
 
 @init
 ext_noinit = 1;
@@ -18,6 +30,34 @@ j = 0;
 while (i < stepsInOctave) (
 	noteOffset[i] = i;
 	i += 1;
+);
+
+function UpdateOffset() (
+	slider1 = noteOffset[0];
+	slider2 = noteOffset[1];
+	slider3 = noteOffset[2];
+	slider4 = noteOffset[3];
+	slider5 = noteOffset[4];
+	slider6 = noteOffset[5];
+	slider7 = noteOffset[6];
+	slider8 = noteOffset[7];
+	slider9 = noteOffset[8];
+	slider10 = noteOffset[9];
+	slider11 = noteOffset[10];
+	slider12 = noteOffset[11];
+	sliderchange(slider1);
+	sliderchange(slider2);
+	sliderchange(slider3);
+	sliderchange(slider4);
+	sliderchange(slider5);
+	sliderchange(slider6);
+	sliderchange(slider7);
+	sliderchange(slider8);
+	sliderchange(slider9);
+	sliderchange(slider10);
+	sliderchange(slider11);
+	sliderchange(slider12);
+	
 );
 
 function FindNewNote(currentNote) (
@@ -48,7 +88,21 @@ noteNameReferance[11] = "B";
 function NumberToName(noteNumber) (
 	noteNameReferance[noteNumber];
 );
-useNoteNames = stepsInOctave == 12;
+
+
+@slider
+noteOffset[0] = slider1;
+noteOffset[1] = slider2;
+noteOffset[2] = slider3;
+noteOffset[3] = slider4;
+noteOffset[4] = slider5;
+noteOffset[5] = slider6;
+noteOffset[6] = slider7;
+noteOffset[7] = slider8;
+noteOffset[8] = slider9;
+noteOffset[9] = slider10;
+noteOffset[10] = slider11;
+noteOffset[11] = slider12;
 
 
 @block
@@ -106,11 +160,7 @@ i = 0;
 while (i < stepsInOctave) ( //top
 	gfx_x = x;
 	gfx_y = y;     
-	(useNoteNames) ? (
-		gfx_drawstr(NumberToName(i));
-	) : (
-		gfx_printf("%{i}i")
-	);
+	gfx_drawstr(NumberToName(i));
 	
 	x += divSize_w;
 	i += 1;
@@ -122,11 +172,7 @@ i = 0;
 while (i < stepsInOctave) ( //side
 	gfx_x = x;
 	gfx_y = y;
-	(useNoteNames) ? (
-		gfx_drawstr(NumberToName(i));
-	) : (
-		gfx_printf("%{i}i")
-	);
+	gfx_drawstr(NumberToName(i));
 	
 	y -= divSize_h;
 	i += 1;
@@ -147,6 +193,7 @@ click = -1;
 );
 (click == 1) ? (
 	noteOffset[col] = row;
+	UpdateOffset()
 );
 
 
