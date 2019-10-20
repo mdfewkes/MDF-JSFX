@@ -40,11 +40,11 @@ while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
 
 		// style adjustments go here
 		PBmid = (PBin - 8192) * mult;
-		(style == 0) ? PBout = PBmid + 8192;
-		(style == 1) ? (
+		(style == 0) ? PBout = PBmid + 8192; //pass thru
+		(style == 1) ? ( //rounded
 			(PBmid < actThresh) && (PBmid > -actThresh) ? PBmid = 0;
 			PBout = PBmid + 8192;);
-		(style == 2) ? (
+		(style == 2) ? ( //rounded with steps
 			k = -PBo;
 			while(k <= PBo) (
 				(PBmid < actThresh + (stepSize * k)) && (PBmid > -actThresh + (stepSize * k)) ? PBmid = 0 + (stepSize * k);
@@ -52,7 +52,7 @@ while (midirecv(offset,msg1,msg2,msg3)) ( //MIDI revieve loop
 				k += 1;
 			);
 		);
-		(style == 3) ? (
+		(style == 3) ? ( //stepped
 			k = -PBo; 
 			stepFound = 0;
 			while(k <= PBo) (

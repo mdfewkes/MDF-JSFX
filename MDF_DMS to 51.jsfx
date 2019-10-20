@@ -49,6 +49,6 @@ chanRs = (rearM - rearS) * volRs * volRb;
 spl0 = chanL;
 slider2 == 0 ? spl1 = chanR : spl1 = chanC;
 slider2 == 0 ? spl2 = chanC : spl2 = chanR;
-slider2 == 1 ? spl3 = chanLs;
+slider2 == 0 ? spl3 = 0      : spl3 = chanLs;
 slider2 == 0 ? spl4 = chanLs : spl4 = chanRs;
-slider2 == 0 ? spl5 = chanRs;
+slider2 == 0 ? spl5 = chanRs : spl5 = 0;
